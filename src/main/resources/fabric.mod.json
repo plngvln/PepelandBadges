@@ -3,9 +3,13 @@
   "id": "pepelandbadges",
   "version": "${version}",
   "name": "PepelandBadges",
-  "description": "",
+  "description": "Клиентский мод, который отображает серверные значки (префиксы/суффиксы) из Tab-листа прямо в игровом мире, рядом с никнеймами игроков.",
   "authors": ["p4pingvin4ik"],
-  "contact": {},
+  "contact": {
+    "homepage" : "https://github.com/plngvln/PepelandBadges",
+    "issues" : "https://github.com/plngvln/PepelandBadges/issues",
+    "sources" : "https://github.com/plngvln/PepelandBadges"
+  },
   "license": "MIT",
   "icon": "assets/pepelandbadges/icon.png",
   "environment": "*",
