@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "pepelandbadges",
+  "version": "${version}",
+  "name": "PepelandBadges",
+  "description": "",
+  "authors": ["p4pingvin4ik"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/pepelandbadges/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesDataGenerator"
+    ],
+    "client": [
+      "net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesClient"
+    ],
+    "main": [
+      "net.p4pingvin4ik.pepelandbadges.Pepelandbadges"
+    ]
+  },
+  "mixins": [
+    "pepelandbadges.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
