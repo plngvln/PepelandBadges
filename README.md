@@ -19,5 +19,5 @@
 
 1.  Скачайте [Fabric Loader](https://fabricmc.net/use/installer/).
 2.  Скачайте [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).
-3.  Скачайте последнюю версию мода **PepelandBadges** c [Modrint](https://modrinth.com/mod/pepelandbadges) или из раздела [Releases](https://github.com/plngvln/PepelandBadges/releases) на GitHub.
+3.  Скачайте последнюю версию мода **PepelandBadges** c [Modrinth](https://modrinth.com/mod/pepelandbadges) или из раздела [Releases](https://github.com/plngvln/PepelandBadges/releases) на GitHub.
 4.  Поместите скачанные `.jar` файлы (Fabric API и PepelandBadges) в папку `mods` в вашей директории Minecraft.
