@@ -40,34 +40,56 @@ public class EntityRendererMixin<T extends Entity> {
                         return tabDisplayName;
                     }
 
-                    MutableText reconstructedName = Text.empty();
+                    List<Text> prefixes = new ArrayList<>();
+                    Text nameComponent = null;
+                    List<Text> suffixes = new ArrayList<>();
+                    boolean nameFound = false;
 
-                    List<Text> components = new ArrayList<>();
+                    List<Text> allComponents = new ArrayList<>();
+                    MutableText head = tabDisplayName.copy();
+                    head.getSiblings().clear();
+                    allComponents.add(head);
+                    allComponents.addAll(tabDisplayName.getSiblings());
 
-                    MutableText headComponent = tabDisplayName.copy();
-                    headComponent.getSiblings().clear();
-                    components.add(headComponent);
+                    for (Text component : allComponents) {
+                        if (component.getString().isBlank()) {
+                            continue;
+                        }
 
-                    components.addAll(tabDisplayName.getSiblings());
-
-                    for (Text component : components) {
-
-                        if (component.getString().isEmpty()) continue;
-
-                        if (component.getString().equals(realNameString)) {
-                            reconstructedName.append(component);
+                        if (!nameFound && component.getString().trim().equals(realNameString)) {
+                            nameComponent = component;
+                            nameFound = true;
+                        } else if (!nameFound) {
+                            prefixes.add(component);
                         } else {
-                            Style originalStyle = component.getStyle();
-                            Style protectedStyle = originalStyle.withInsertion(NickPaintsCompat.PROTECTED_TAG_INSERTION_KEY);
-
-                            reconstructedName.append(component.copy().setStyle(protectedStyle));
+                            suffixes.add(component);
                         }
                     }
+
+                    MutableText reconstructedName = Text.empty();
+
+                    for (Text prefix : prefixes) {
+                        reconstructedName.append(protect(prefix));
+                    }
+
+                    if (nameComponent != null) {
+                        reconstructedName.append(nameComponent);
+                    }
+
+                    for (Text suffix : suffixes) {
+                        reconstructedName.append(protect(suffix));
+                    }
+
                     return reconstructedName;
                 }
             }
         }
 
-        return entity.getDisplayName();
+        return ((EntityRendererAccessor) instance).invokeGetDisplayName(entity);
+    }
+
+    private Text protect(Text component) {
+        Style protectedStyle = component.getStyle().withInsertion(NickPaintsCompat.PROTECTED_TAG_INSERTION_KEY);
+        return component.copy().setStyle(protectedStyle);
     }
 }
