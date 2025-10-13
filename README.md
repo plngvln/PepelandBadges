@@ -2,7 +2,7 @@
 
 ## Отображение значков из Tab-листа в игровом мире
 
-**PepelandBadges** — это простой клиентский Fabric мод, который решает одну задачу: он берет кастомные префиксы и суффиксы (значки/баджи) из серверного Tab-листа и отображает их над головами игроков в игровом мире.
+**PepelandBadges** — Клиентский мод, который отображает серверные ppl значки (префиксы/суффиксы) из Tab-листа прямо в игровом мире, рядом с никнеймами игроков.
 
 ## Как это выглядит?
 
@@ -19,5 +19,5 @@
 
 1.  Скачайте [Fabric Loader](https://fabricmc.net/use/installer/).
 2.  Скачайте [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).
-3.  Скачайте последнюю версию мода **PepelandBadges** из раздела [Releases](https://github.com/plngvln/PepelandBadges/releases) на GitHub.
+3.  Скачайте последнюю версию мода **PepelandBadges** c [Modrinth](https://modrinth.com/mod/pepelandbadges) или из раздела [Releases](https://github.com/plngvln/PepelandBadges/releases) на GitHub.
 4.  Поместите скачанные `.jar` файлы (Fabric API и PepelandBadges) в папку `mods` в вашей директории Minecraft.
