@@ -8,8 +8,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesClient;
 import net.p4pingvin4ik.pepelandbadges.util.NickPaintsCompat;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -27,6 +29,9 @@ public class EntityRendererMixin<T extends Entity> {
             )
     )
     private Text getDisplayNameFromTab(EntityRenderer<T, ?> instance, T entity) {
+        if (!PepelandbadgesClient.MOD_ENABLED) {
+            return ((EntityRendererAccessor) instance).invokeGetDisplayName(entity);
+        }
         if (entity instanceof PlayerEntity player) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.getNetworkHandler() != null) {
@@ -88,6 +93,7 @@ public class EntityRendererMixin<T extends Entity> {
         return ((EntityRendererAccessor) instance).invokeGetDisplayName(entity);
     }
 
+    @Unique
     private Text protect(Text component) {
         Style protectedStyle = component.getStyle().withInsertion(NickPaintsCompat.PROTECTED_TAG_INSERTION_KEY);
         return component.copy().setStyle(protectedStyle);
