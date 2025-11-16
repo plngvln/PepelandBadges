@@ -3,6 +3,7 @@ package net.p4pingvin4ik.pepelandbadges.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -13,84 +14,78 @@ import net.p4pingvin4ik.pepelandbadges.util.NickPaintsCompat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(EntityRenderer.class)
-public class EntityRendererMixin<T extends Entity> {
+@Mixin(value = EntityRenderer.class, priority = 1100)
+public abstract class EntityRendererMixin<T extends Entity, S extends EntityRenderState> {
 
-    @Redirect(
+    @Inject(
             method = "updateRenderState",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/entity/EntityRenderer;getDisplayName(Lnet/minecraft/entity/Entity;)Lnet/minecraft/text/Text;"
-            )
+            at = @At("RETURN")
     )
-    private Text getDisplayNameFromTab(EntityRenderer<T, ?> instance, T entity) {
-        if (!PepelandbadgesClient.MOD_ENABLED) {
-            return ((EntityRendererAccessor) instance).invokeGetDisplayName(entity);
+    private void modifyDisplayNameAfterUpdate(T entity, S state, float tickProgress, CallbackInfo ci) {
+        if (state.displayName == null || !PepelandbadgesClient.MOD_ENABLED || !(entity instanceof PlayerEntity)) {
+            return;
         }
-        if (entity instanceof PlayerEntity player) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.getNetworkHandler() != null) {
-                PlayerListEntry playerListEntry = client.getNetworkHandler().getPlayerListEntry(player.getUuid());
 
-                if (playerListEntry != null && playerListEntry.getDisplayName() != null) {
-                    Text tabDisplayName = playerListEntry.getDisplayName();
-                    String realNameString = player.getName().getString();
+        Text modifiedText = getBadgesTextForPlayer((PlayerEntity) entity, state.displayName);
 
-                    if (tabDisplayName.getString().equals(realNameString)) {
-                        return tabDisplayName;
-                    }
+        state.displayName = modifiedText;
+    }
 
-                    List<Text> prefixes = new ArrayList<>();
-                    Text nameComponent = null;
-                    List<Text> suffixes = new ArrayList<>();
-                    boolean nameFound = false;
+    @Unique
+    private Text getBadgesTextForPlayer(PlayerEntity player, Text originalName) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.getNetworkHandler() == null) {
+            return originalName;
+        }
 
-                    List<Text> allComponents = new ArrayList<>();
-                    MutableText head = tabDisplayName.copy();
-                    head.getSiblings().clear();
-                    allComponents.add(head);
-                    allComponents.addAll(tabDisplayName.getSiblings());
+        PlayerListEntry playerListEntry = client.getNetworkHandler().getPlayerListEntry(player.getUuid());
+        if (playerListEntry == null || playerListEntry.getDisplayName() == null) {
+            return originalName;
+        }
 
-                    for (Text component : allComponents) {
-                        if (component.getString().isBlank()) {
-                            continue;
-                        }
+        Text tabDisplayName = playerListEntry.getDisplayName();
+        String realNameString = player.getName().getString();
 
-                        if (!nameFound && component.getString().trim().equals(realNameString)) {
-                            nameComponent = component;
-                            nameFound = true;
-                        } else if (!nameFound) {
-                            prefixes.add(component);
-                        } else {
-                            suffixes.add(component);
-                        }
-                    }
+        if (tabDisplayName.getString().equals(realNameString)) {
+            return originalName;
+        }
 
-                    MutableText reconstructedName = Text.empty();
+        List<Text> prefixes = new ArrayList<>();
+        boolean nameFound = false;
 
-                    for (Text prefix : prefixes) {
-                        reconstructedName.append(protect(prefix));
-                    }
+        List<Text> allComponents = new ArrayList<>();
+        MutableText head = tabDisplayName.copy();
+        head.getSiblings().clear();
+        allComponents.add(head);
+        allComponents.addAll(tabDisplayName.getSiblings());
 
-                    if (nameComponent != null) {
-                        reconstructedName.append(nameComponent);
-                    }
+        for (Text component : allComponents) {
+            if (component.getString().isBlank()) continue;
 
-                    for (Text suffix : suffixes) {
-                        reconstructedName.append(protect(suffix));
-                    }
-
-                    return reconstructedName;
-                }
+            if (!nameFound && component.getString().trim().equals(realNameString)) {
+                nameFound = true;
+            } else if (!nameFound) {
+                prefixes.add(component);
             }
         }
 
-        return ((EntityRendererAccessor) instance).invokeGetDisplayName(entity);
+        if (prefixes.isEmpty()) {
+            return originalName;
+        }
+
+        MutableText finalName = Text.empty();
+        for (Text prefix : prefixes) {
+            finalName.append(protect(prefix));
+        }
+        finalName.append(originalName);
+
+        return finalName;
     }
 
     @Unique
