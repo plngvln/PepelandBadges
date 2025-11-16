@@ -8,6 +8,8 @@
 
 <img width="1920" height="1080" alt="2025-10-12_02 18 50" src="https://github.com/user-attachments/assets/c8cf1d9a-18f9-4bd2-bfe6-5ff8f0e0aa99" />
 
+<img width="1920" height="1080" alt="2025-10-25_18 57 26 (2)" src="https://github.com/user-attachments/assets/f91c72d3-d556-422a-ac00-43b3e966403f" />
+
 ## Возможности
 
 *   **Отображение значков:** Префиксы и суффиксы из Tab-листа появляются над головой игрока.
