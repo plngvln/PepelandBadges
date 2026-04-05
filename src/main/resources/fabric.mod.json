@@ -14,9 +14,6 @@
   "icon": "assets/pepelandbadges/icon.png",
   "environment": "*",
   "entrypoints": {
-    "fabric-datagen": [
-      "net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesDataGenerator"
-    ],
     "client": [
       "net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesClient"
     ],
