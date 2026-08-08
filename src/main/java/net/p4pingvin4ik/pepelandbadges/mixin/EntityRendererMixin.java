@@ -1,14 +1,14 @@
 package net.p4pingvin4ik.pepelandbadges.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.p4pingvin4ik.pepelandbadges.client.PepelandbadgesClient;
 import net.p4pingvin4ik.pepelandbadges.util.PlayerListEntryTabText;
 import net.p4pingvin4ik.pepelandbadges.util.TabNameplateHelper;
@@ -25,40 +25,40 @@ import java.util.Optional;
 public abstract class EntityRendererMixin<T extends Entity, S extends EntityRenderState> {
 
     @Inject(
-            method = "updateRenderState",
+            method = "extractRenderState",
             at = @At("RETURN")
     )
     private void modifyDisplayNameAfterUpdate(T entity, S state, float tickProgress, CallbackInfo ci) {
-        if (state.displayName == null || !PepelandbadgesClient.MOD_ENABLED || !(entity instanceof PlayerEntity)) {
+        if (state.nameTag == null || !PepelandbadgesClient.MOD_ENABLED || !(entity instanceof Player)) {
             return;
         }
 
-        Text modifiedText = getBadgesTextForPlayer((PlayerEntity) entity, state.displayName);
+        Component modifiedText = getBadgesTextForPlayer((Player) entity, state.nameTag);
 
-        state.displayName = modifiedText;
+        state.nameTag = modifiedText;
     }
 
     @Unique
-    private Text getBadgesTextForPlayer(PlayerEntity player, Text originalName) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.getNetworkHandler() == null) {
+    private Component getBadgesTextForPlayer(Player player, Component originalName) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.getConnection() == null) {
             return originalName;
         }
 
-        PlayerListEntry playerListEntry = client.getNetworkHandler().getPlayerListEntry(player.getUuid());
+        PlayerInfo playerListEntry = client.getConnection().getPlayerInfo(player.getUUID());
         if (playerListEntry == null) {
             return originalName;
         }
 
-        Text tabDisplayName = PlayerListEntryTabText.getEffectiveDisplayName(playerListEntry);
+        Component tabDisplayName = PlayerListEntryTabText.getEffectiveDisplayName(playerListEntry);
         String realNameString = player.getName().getString();
         TabNameParts tabNameParts = TabNameplateHelper.splitTabName(tabDisplayName, realNameString);
 
         String originalString = originalName.getString();
         boolean hasStandardNamePlacement = originalString.equals(realNameString) || originalString.startsWith(realNameString + " ");
-        Text finalBody = originalName;
+        Component finalBody = originalName;
         if (hasStandardNamePlacement && tabNameParts.name() != null) {
-            Text tail = TabNameplateHelper.splitLeadingNameTail(originalName, realNameString);
+            Component tail = TabNameplateHelper.splitLeadingNameTail(originalName, realNameString);
             if (tail != null) {
                 final Style[] nameStyle = {Style.EMPTY};
                 originalName.visit((style, string) -> {
@@ -69,7 +69,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
                     return Optional.empty();
                 }, Style.EMPTY);
 
-                finalBody = Text.literal(realNameString).setStyle(nameStyle[0]).append(tail);
+                finalBody = Component.literal(realNameString).setStyle(nameStyle[0]).append(tail);
             }
         }
 
@@ -77,7 +77,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
             return finalBody;
         }
 
-        MutableText result = Text.empty()
+        MutableComponent result = Component.empty()
                 .append(TabNameplateHelper.protect(tabNameParts.prefix()));
 
         String prefixString = tabNameParts.prefix().getString();
@@ -86,7 +86,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
             char prefixLast = prefixString.charAt(prefixString.length() - 1);
             char bodyFirst = bodyString.charAt(0);
             if (pepeland$needsSeparatorBeforeName(prefixLast, bodyFirst)) {
-                result.append(Text.literal(" "));
+                result.append(Component.literal(" "));
             }
         }
 

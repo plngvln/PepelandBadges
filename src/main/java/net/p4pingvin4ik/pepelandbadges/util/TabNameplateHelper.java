@@ -1,12 +1,11 @@
 package net.p4pingvin4ik.pepelandbadges.util;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 /**
  * Parses tab list display names into prefix + player name, and splits world name into name + tail.
@@ -16,19 +15,19 @@ public final class TabNameplateHelper {
     private TabNameplateHelper() {
     }
 
-    public static Text protect(Text component) {
-        MutableText protectedText = Text.empty();
+    public static Component protect(Component component) {
+        MutableComponent protectedText = Component.empty();
         component.visit((style, string) -> {
             if (!string.isEmpty()) {
                 Style protectedStyle = style.withInsertion(NickPaintsCompat.PROTECTED_TAG_INSERTION_KEY);
-                protectedText.append(Text.literal(string).setStyle(protectedStyle));
+                protectedText.append(Component.literal(string).setStyle(protectedStyle));
             }
             return Optional.empty();
         }, Style.EMPTY);
         return protectedText;
     }
 
-    public static TabNameParts splitTabName(Text tabDisplayName, String realNameString) {
+    public static TabNameParts splitTabName(Component tabDisplayName, String realNameString) {
         List<StyledChunk> chunks = new ArrayList<>();
         tabDisplayName.visit((style, string) -> {
             if (!string.isEmpty()) {
@@ -39,19 +38,19 @@ public final class TabNameplateHelper {
 
         for (int start = 0; start < chunks.size(); start++) {
             StringBuilder current = new StringBuilder();
-            MutableText candidateName = Text.empty();
+            MutableComponent candidateName = Component.empty();
 
             for (int end = start; end < chunks.size(); end++) {
                 StyledChunk chunk = chunks.get(end);
                 current.append(chunk.value());
-                candidateName.append(Text.literal(chunk.value()).setStyle(chunk.style()));
+                candidateName.append(Component.literal(chunk.value()).setStyle(chunk.style()));
 
                 String currentString = current.toString();
                 if (realNameString.equals(currentString)) {
-                    MutableText prefix = Text.empty();
+                    MutableComponent prefix = Component.empty();
                     for (int i = 0; i < start; i++) {
                         StyledChunk prefixChunk = chunks.get(i);
-                        prefix.append(Text.literal(prefixChunk.value()).setStyle(prefixChunk.style()));
+                        prefix.append(Component.literal(prefixChunk.value()).setStyle(prefixChunk.style()));
                     }
                     return new TabNameParts(stripLeadingAsciiWhitespace(prefix), candidateName);
                 }
@@ -62,20 +61,20 @@ public final class TabNameplateHelper {
             }
         }
 
-        return new TabNameParts(Text.empty(), null);
+        return new TabNameParts(Component.empty(), null);
     }
 
     /**
      * Removes leading {@code ' '} from tab prefix (servers often send a stray space before badges).
      */
-    public static Text stripLeadingAsciiWhitespace(Text source) {
+    public static Component stripLeadingAsciiWhitespace(Component source) {
         if (source == null) {
-            return Text.empty();
+            return Component.empty();
         }
         if (source.getString().isEmpty()) {
             return source;
         }
-        MutableText result = Text.empty();
+        MutableComponent result = Component.empty();
         boolean[] stillLeading = {true};
         source.visit((style, string) -> {
             if (string.isEmpty()) {
@@ -89,14 +88,14 @@ public final class TabNameplateHelper {
                 stillLeading[0] = false;
             }
             if (i < string.length()) {
-                result.append(Text.literal(string.substring(i)).setStyle(style));
+                result.append(Component.literal(string.substring(i)).setStyle(style));
             }
             return Optional.empty();
         }, Style.EMPTY);
         return result;
     }
 
-    public static Text splitLeadingNameTail(Text source, String realNameString) {
+    public static Component splitLeadingNameTail(Component source, String realNameString) {
         List<StyledChunk> chunks = new ArrayList<>();
         source.visit((style, string) -> {
             if (!string.isEmpty()) {
@@ -140,19 +139,19 @@ public final class TabNameplateHelper {
             return null;
         }
 
-        MutableText rebuiltTail = Text.empty();
+        MutableComponent rebuiltTail = Component.empty();
         if (chunkIndex < chunks.size()) {
             StyledChunk partial = chunks.get(chunkIndex);
             String tail = partial.value().substring(consumedInChunk);
             if (!tail.isEmpty()) {
-                rebuiltTail.append(Text.literal(tail).setStyle(partial.style()));
+                rebuiltTail.append(Component.literal(tail).setStyle(partial.style()));
             }
             chunkIndex++;
         }
 
         for (int i = chunkIndex; i < chunks.size(); i++) {
             StyledChunk chunk = chunks.get(i);
-            rebuiltTail.append(Text.literal(chunk.value()).setStyle(chunk.style()));
+            rebuiltTail.append(Component.literal(chunk.value()).setStyle(chunk.style()));
         }
 
         return rebuiltTail;
@@ -161,6 +160,6 @@ public final class TabNameplateHelper {
     public record StyledChunk(Style style, String value) {
     }
 
-    public record TabNameParts(Text prefix, Text name) {
+    public record TabNameParts(Component prefix, Component name) {
     }
 }

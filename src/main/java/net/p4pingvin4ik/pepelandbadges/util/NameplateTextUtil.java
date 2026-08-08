@@ -1,13 +1,12 @@
 package net.p4pingvin4ik.pepelandbadges.util;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-
 import java.util.Optional;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 /**
- * Replaces a UTF-16 code unit range in a {@link Text} tree with another {@link Text},
+ * Replaces a UTF-16 code unit range in a {@link Component} tree with another {@link Component},
  * preserving styles outside the range.
  */
 public final class NameplateTextUtil {
@@ -15,12 +14,12 @@ public final class NameplateTextUtil {
     private NameplateTextUtil() {
     }
 
-    public static Text replaceUtf16Range(Text root, int startInclusive, int endExclusive, Text insertion) {
+    public static Component replaceUtf16Range(Component root, int startInclusive, int endExclusive, Component insertion) {
         if (startInclusive < 0 || endExclusive < startInclusive) {
             return root;
         }
 
-        MutableText out = Text.empty();
+        MutableComponent out = Component.empty();
         int[] index = {0};
         boolean[] inserted = {false};
         StringBuilder buf = new StringBuilder();
@@ -28,7 +27,7 @@ public final class NameplateTextUtil {
 
         Runnable flush = () -> {
             if (buf.length() > 0) {
-                out.append(Text.literal(buf.toString()).setStyle(bufStyle[0]));
+                out.append(Component.literal(buf.toString()).setStyle(bufStyle[0]));
                 buf.setLength(0);
             }
         };
