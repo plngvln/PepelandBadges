@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 public class PepelandbadgesClient implements ClientModInitializer {
     public static boolean MOD_ENABLED = true;
@@ -22,8 +21,8 @@ public class PepelandbadgesClient implements ClientModInitializer {
 
         toggleKeyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.pepelandbadges.toggle",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_B,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_B,
                 category
         ));
 
